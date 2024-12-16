@@ -1,0 +1,37 @@
+package writer
+
+// This file is generated using toval.tmpl. NEVER EDIT.
+
+import (
+	"context"
+
+	{{ if not (eq .TypeHint "Null") }}
+	"database/sql"
+	{{ end }}
+
+	. "github.com/takanoriyanagitani/go-avro2string/util"
+)
+
+func {{.TypeHint}}ToValue(v {{.Primitive}}) Value {
+	return func(w ValueWriter) IO[Void] {
+		return func(ctx context.Context) (Void, error) {
+			var pw PrimitiveWriter = w.PrimitiveWriter
+			var vw Writer[{{.Primitive}}] = pw.{{.TypeHint}}Writer
+			var wtr func({{.Primitive}}) IO[Void] = vw
+			return wtr(v)(ctx)
+		}
+	}
+}
+
+{{ if not (eq .TypeHint "Null") }}
+func Nullable{{.TypeHint}}ToValue(v sql.Null[{{.Primitive}}]) Value {
+	return func(w ValueWriter) IO[Void] {
+		return func(ctx context.Context) (Void, error) {
+			var nw NullableWriter = w.NullableWriter
+			var vw Writer[sql.Null[{{.Primitive}}]] = nw.{{.TypeHint}}Writer
+			var wtr func(sql.Null[{{.Primitive}}]) IO[Void] = vw
+			return wtr(v)(ctx)
+		}
+	}
+}
+{{ end }}

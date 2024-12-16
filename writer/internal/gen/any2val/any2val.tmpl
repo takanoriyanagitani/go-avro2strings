@@ -1,0 +1,23 @@
+package writer
+
+// This file is generated using any2val.tmpl. NEVER EDIT.
+
+import (
+	"database/sql"
+	"fmt"
+)
+
+func AnyToValue{{.TypeHint}}(a any) Value {
+	switch t := a.(type) {
+	case {{.Primitive}}:
+		return {{.TypeHint}}ToValue(t)
+	case *{{.Primitive}}:
+		return Nullable{{.TypeHint}}ToValue(sql.Null[{{.Primitive}}]{})
+	case nil:
+		return Nullable{{.TypeHint}}ToValue(sql.Null[{{.Primitive}}]{})
+	case sql.Null[{{.Primitive}}]:
+		return Nullable{{.TypeHint}}ToValue(t)
+	default:
+		return InvalidValueFromErr(fmt.Errorf("%w: %v", ErrInvalidValue, t))
+	}
+}
